@@ -1,4 +1,4 @@
-import { useReducer } from 'react';
+import { useReducer, useEffect} from 'react';
 import { validate } from '../../util/validators';
 import './Input.css';
 
@@ -28,6 +28,14 @@ const Input = props => {
     isTouched: false,
     isValid: false
   });
+
+  // We learned if we are having some deps on the props, then we should always destructure it in advance.
+  const { id, onInput } = props;
+  const { value, isValid } = inputState;
+
+  useEffect(() => {
+    onInput(id, value, isValid)
+  }, [id, value, isValid, onInput]);
 
   // This will be fired on every keystock. And we will be taking care of 2 things. We want to store the value and we would like to validate it.
   const changeHandler = event => {
