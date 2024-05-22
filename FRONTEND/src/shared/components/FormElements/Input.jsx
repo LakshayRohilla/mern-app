@@ -24,9 +24,10 @@ const inputReducer = (state, action) => {
 
 const Input = props => {
   const [inputState, dispatch] = useReducer(inputReducer, {
-    value: '',
+    value: props.initialValue || '',
+    // Bcz in the case of update we should be having the value in it.
     isTouched: false,
-    isValid: false
+    isValid: props.initialValid || false
   });
 
   // We learned if we are having some deps on the props, then we should always destructure it in advance.
