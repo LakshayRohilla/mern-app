@@ -24,7 +24,8 @@ const inputReducer = (state, action) => {
 
 const Input = props => {
   const [inputState, dispatch] = useReducer(inputReducer, {
-    value: '',
+    value: props.value || '',
+	// Bcz in the case of update we should be having the value in it.
     isTouched: false,
     isValid: false
   });
