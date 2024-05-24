@@ -19,6 +19,35 @@ function App() {
     setIsLoggedIn(false);
   }, []);
 
+  let routes;
+
+  if (isLoggedIn) {
+    routes = (
+      <Routes>
+            <Route path="/" element={<Users />} />
+            <Route path="places/new" element={<NewPlace />} />
+            <Route path="/:userId/places" element={<UserPlaces />} />
+            <Route path="*" element={<Users />} />
+            {/* In case we are providing the randon path which does not exist Users component will be loaded */}
+            <Route path="/places/:placeId" element={<UpdatePlace />} />
+            {/* <Route path="/auth" element={<Auth />} /> */}
+          </Routes>
+    );
+  } else {
+    routes = (
+      <Routes>
+            <Route path="/" element={<Users />} />
+            {/* <Route path="places/new" element={<NewPlace />} /> */}
+            <Route path="/:userId/places" element={<UserPlaces />} />
+            {/* <Route path="*" element={<Users />} /> */}
+            {/* In case we are providing the randon path which does not exist Users component will be loaded */}
+            {/* <Route path="/places/:placeId" element={<UpdatePlace />} /> */}
+            <Route path="/auth" element={<Auth />} />
+            <Route path="*" element={<Auth/>} />
+          </Routes>
+    );
+  }
+
   return (
     <AuthContext.Provider
       value={{ isLoggedIn: isLoggedIn, login: login, logout: logout }}
@@ -26,15 +55,16 @@ function App() {
       <BrowserRouter>
         <MainNavigation />
         <main>
-          <Routes>
-            <Route path="/" element={<Users />} />
-            <Route path="places/new" element={<NewPlace />} />
-            <Route path="/:userId/places" element={<UserPlaces />} />
-            <Route path="*" element={<Users />} />
+          {/* <Routes> */}
+            {/* <Route path="/" element={<Users />} /> */}
+            {/* <Route path="places/new" element={<NewPlace />} /> */}
+            {/* <Route path="/:userId/places" element={<UserPlaces />} /> */}
+            {/* <Route path="*" element={<Users />} /> */}
             {/* In case we are providing the randon path which does not exist Users component will be loaded */}
-            <Route path="/places/:placeId" element={<UpdatePlace />} />
-            <Route path="/auth" element={<Auth />} />
-          </Routes>
+            {/* <Route path="/places/:placeId" element={<UpdatePlace />} /> */}
+            {/* <Route path="/auth" element={<Auth />} /> */}
+          {/* </Routes> */}
+          {routes}
         </main>
       </BrowserRouter>
     </AuthContext.Provider>
