@@ -20,6 +20,7 @@ const DUMMY_PLACES = [
 ];
 
 router.get('/:pid', (req, res, next) => {
+  // Here, '/pid' handles all the values even if they are not valid.
   // This is our middleware function in which we always have 3 params.
   const placeId = req.params.pid; // { pid: 'p1' }
   const place = DUMMY_PLACES.find(p => {
@@ -28,6 +29,18 @@ router.get('/:pid', (req, res, next) => {
   res.json({place}); // => { place } => { place: place }
   // In the above line we are not doing res.send, though this time will send a json data.
   // As we the REST API`s we will exchange data in the JSON format
+});
+
+router.get('/user/:uid', (req, res, next) => {
+  // Now if we have /api/place/user then also the previous router will handle it. As it takes even invalid ids.
+  // And this is an issue.
+  const userId = req.params.uid;
+
+  const place = DUMMY_PLACES.find(p => {
+    return p.creator === userId;
+  });
+
+  res.json({ place });
 });
 
 module.exports = router;
