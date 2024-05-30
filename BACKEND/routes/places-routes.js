@@ -26,6 +26,17 @@ router.get('/:pid', (req, res, next) => {
   const place = DUMMY_PLACES.find(p => {
     return p.id === placeId;
   });
+
+  if (!place) {
+    const error = new Error('Could not find a place for the provided id.');
+    error.code = 404;
+    throw error;
+    // Above is one way to trigger the error handling middleware.
+    // When throwing an error, you don't have to return because if you use throw, that already cancels the function execution, next does not cancel it so we have to return to then thereafter make sure this code doesn't run.
+    // Another is the next() function and pass an error to it.
+    // When we are in async code we have to use next and then pass error to it. next(error)                                                                             
+  }
+
   res.json({place}); // => { place } => { place: place }
   // In the above line we are not doing res.send, though this time will send a json data.
   // As we the REST API`s we will exchange data in the JSON format
@@ -40,6 +51,13 @@ router.get('/user/:uid', (req, res, next) => {
     return p.creator === userId;
   });
 
+  if (!place) {
+    const error = new Error('Could not find a place for the provided user id.');
+    error.code = 404;
+    return next(error); 
+    // We return so that it wont go to the further lines.
+    //  next does not cancel it so we have to return to then thereafter make sure this code doesn't run.
+  }
   res.json({ place });
 });
 
