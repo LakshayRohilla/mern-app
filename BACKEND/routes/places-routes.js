@@ -2,6 +2,7 @@
 // responsible for handling routes related to places 
 
 const express = require('express');
+const HttpError = require('../models/http-error');
 
 const router = express.Router();
 
@@ -28,13 +29,16 @@ router.get('/:pid', (req, res, next) => {
   });
 
   if (!place) {
-    const error = new Error('Could not find a place for the provided id.');
-    error.code = 404;
-    throw error;
+    // const error = new Error('Could not find a place for the provided id.');
+    // error.code = 404;
+    // throw error;
     // Above is one way to trigger the error handling middleware.
     // When throwing an error, you don't have to return because if you use throw, that already cancels the function execution, next does not cancel it so we have to return to then thereafter make sure this code doesn't run.
     // Another is the next() function and pass an error to it.
-    // When we are in async code we have to use next and then pass error to it. next(error)                                                                             
+    // When we are in async code we have to use next and then pass error to it. next(error)            
+    if (!place) {
+      throw new HttpError('Could not find a place for the provided id.', 404);
+    }                                                                 
   }
 
   res.json({place}); // => { place } => { place: place }
@@ -52,11 +56,14 @@ router.get('/user/:uid', (req, res, next) => {
   });
 
   if (!place) {
-    const error = new Error('Could not find a place for the provided user id.');
-    error.code = 404;
-    return next(error); 
+    // const error = new Error('Could not find a place for the provided user id.');
+    // error.code = 404;
+    // return next(error); 
     // We return so that it wont go to the further lines.
     //  next does not cancel it so we have to return to then thereafter make sure this code doesn't run.
+    return next(
+      new HttpError('Could not find a place for the provided user id.', 404)
+    );
   }
   res.json({ place });
 });
