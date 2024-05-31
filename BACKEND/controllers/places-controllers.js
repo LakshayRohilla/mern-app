@@ -1,5 +1,5 @@
 // All the middleware logic is being moved here.
-
+const uuid = require('uuid/v4');
 const HttpError = require("../models/http-error");
 
 const DUMMY_PLACES = [
@@ -67,5 +67,24 @@ const getPlaceByUserId = (req, res, next) => {
   res.json({ place });
 };
 
+const createPlace = (req, res, next) => {
+  const { title, description, coordinates, address, creator } = req.body;
+  // In post, request always have a body. Now to get the data out of the body we use body-parser.
+  // const title = req.body.title;
+  const createdPlace = {
+    id: uuid(),
+    title, // we can also do title: title also. We use the short cut when we have same property name.
+    location: coordinates,
+    address,
+    creator
+  };
+
+  DUMMY_PLACES.push(createdPlace); //unshift(createdPlace)
+
+  res.status(201).json({place: createdPlace}); // 201 =  successfully creted on the server.
+  // Here we are returning json having an object into it, in which we have place holding createdPlace.
+};
+
 exports.getPlaceById = getPlaceById;
 exports.getPlaceByUserId = getPlaceByUserId;
+exports.createPlace = createPlace;

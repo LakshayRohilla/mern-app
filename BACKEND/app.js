@@ -5,6 +5,8 @@ const placesRoutes = require('./routes/places-routes');
 // We provide relative path here.
 
 const app = express();
+app.use(bodyParser.json());
+
 
 // app.use(placesRoutes); // This is our middleware
 app.use('/api/places', placesRoutes); // => /api/places...
