@@ -2,7 +2,7 @@
 const uuid = require('uuid/v4');
 const HttpError = require("../models/http-error");
 
-const DUMMY_PLACES = [
+let DUMMY_PLACES = [
   {
     id: "p1",
     title: "Empire State Building",
@@ -85,6 +85,32 @@ const createPlace = (req, res, next) => {
   // Here we are returning json having an object into it, in which we have place holding createdPlace.
 };
 
+
+const updatePlace = (req, res, next) => {
+  const { title, description } = req.body;
+  const placeId = req.params.pid; // pid we are getting from the url, thats why we are using the params as we are getting this data from the parameters.
+
+  const updatedPlace = { ...DUMMY_PLACES.find(p => p.id === placeId) }; // here we are making a copy of the object using {...}
+  // const updatedPlace = DUMMY_PLACES.find(p => p.id === placeId);
+  // Over here what we could do is : updatedPlace.title = newTitle , updatedPlace.description = description. But its not the optimised way manipulating the array.
+  const placeIndex = DUMMY_PLACES.findIndex(p => p.id === placeId);
+  updatedPlace.title = title;
+  updatedPlace.description = description;
+
+  DUMMY_PLACES[placeIndex] = updatedPlace;
+
+  res.status(200).json({place: updatedPlace});
+};
+
+const deletePlace = (req, res, next) => {
+  const placeId = req.params.pid;
+  DUMMY_PLACES = DUMMY_PLACES.filter(p => p.id !== placeId);
+  res.status(200).json({ message: 'Deleted place.' });
+};
+
+
 exports.getPlaceById = getPlaceById;
 exports.getPlaceByUserId = getPlaceByUserId;
 exports.createPlace = createPlace;
+exports.updatePlace = updatePlace;
+exports.deletePlace = deletePlace;
