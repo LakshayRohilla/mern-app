@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const placesRoutes = require('./routes/places-routes');
 // We provide relative path here.
 const HttpError = require('./models/http-error');
+const usersRoutes = require('./routes/users-routes');
 
 const app = express();
 app.use(bodyParser.json());
@@ -13,6 +14,8 @@ app.use(bodyParser.json());
 app.use('/api/places', placesRoutes); // => /api/places...
 // Express.js will now only forward requests to our places routes middleware,
 // so to the routes configured here if their path starts with /api/places.
+
+app.use('/api/users', usersRoutes);
 
 // We are adding this after the other routes, bcz if we didnt send res for one of the route. Then only we will trigger this.
 // This middleware is only reached if we have some request which didn't get a response
