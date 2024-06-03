@@ -13,6 +13,10 @@ router.get('/user/:uid', placesControllers.getPlaceByUserId);
 router.post('/', placesControllers.createPlace);
 //This means /api/place will reach to this path.
 
+router.patch('/:pid', placesControllers.updatePlace); // if we have another get method with the same path then there will be a clash.
+
+router.delete('/:pid', placesControllers.deletePlace);
+
 module.exports = router;
 // We need to export this configuration so that we can use it in the app.js
 // This simply means the thing which we export in this file is this router constant, so this configured
