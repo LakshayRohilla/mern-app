@@ -1,5 +1,6 @@
 // All the middleware logic is being moved here.
-const uuid = require('uuid/v4');
+// const uuid = require('uuid/v4');
+const { v4: uuidv4 } = require('uuid');
 const HttpError = require("../models/http-error");
 const { validationResult } = require('express-validator');
 
@@ -78,7 +79,7 @@ const createPlace = (req, res, next) => {
   // In post, request always have a body. Now to get the data out of the body we use body-parser.
   // const title = req.body.title;
   const createdPlace = {
-    id: uuid(),
+    id: uuidv4(),
     title, // we can also do title: title also. We use the short cut when we have same property name.
     location: coordinates,
     address,
@@ -114,6 +115,9 @@ const updatePlace = (req, res, next) => {
 
 const deletePlace = (req, res, next) => {
   const placeId = req.params.pid;
+  if (!DUMMY_PLACES.find(p => p.id === placeId)) {
+    throw new HttpError('Could not find a place for that id.', 404);
+  }
   DUMMY_PLACES = DUMMY_PLACES.filter(p => p.id !== placeId);
   res.status(200).json({ message: 'Deleted place.' });
 };
