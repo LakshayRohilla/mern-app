@@ -1,6 +1,7 @@
 // All the middleware logic is being moved here.
 const uuid = require('uuid/v4');
 const HttpError = require("../models/http-error");
+const { validationResult } = require('express-validator');
 
 let DUMMY_PLACES = [
   {
@@ -68,6 +69,11 @@ const getPlacesByUserId = (req, res, next) => {
 };
 
 const createPlace = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw new HttpError('Invalid inputs passed, please check your data.', 422);
+  }
+
   const { title, description, coordinates, address, creator } = req.body;
   // In post, request always have a body. Now to get the data out of the body we use body-parser.
   // const title = req.body.title;
@@ -87,6 +93,10 @@ const createPlace = (req, res, next) => {
 
 
 const updatePlace = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw new HttpError('Invalid inputs passed, please check your data.', 422);
+  }
   const { title, description } = req.body;
   const placeId = req.params.pid; // pid we are getting from the url, thats why we are using the params as we are getting this data from the parameters.
 

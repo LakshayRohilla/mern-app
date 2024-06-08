@@ -42,7 +42,7 @@ const DUMMY_PLACES = [
 
 const UpdatePlace = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const placeId = useParams().placeId;
+  const placeId = useParams().placeId; // this parameter should be similar to the one we mentioned in the routes.
 
   const [formState, inputHandler, setFormData] = useForm(
     {
