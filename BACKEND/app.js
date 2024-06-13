@@ -5,6 +5,7 @@ const placesRoutes = require('./routes/places-routes');
 // We provide relative path here.
 const HttpError = require('./models/http-error');
 const usersRoutes = require('./routes/users-routes');
+const mongoose = require('mongoose');
 
 const app = express();
 app.use(bodyParser.json());
@@ -32,4 +33,11 @@ app.use((error, req, res, next) => { // its a error handling middleware function
     res.json({message: error.message || 'An unknown error occurred!'});
   });
 
-app.listen(5000);
+  mongoose
+  .connect('mongodb+srv://mern_app:root@cluster0.mlgdtgx.mongodb.net/places?retryWrites=true&w=majority&appName=Cluster0')
+  .then(() => {
+    app.listen(5000);
+  })
+  .catch(err => {
+    console.log(err);
+  });

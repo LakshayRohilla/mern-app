@@ -3,6 +3,7 @@
 const { v4: uuidv4 } = require('uuid');
 const HttpError = require("../models/http-error");
 const { validationResult } = require('express-validator');
+const getCoordsForAddress = require('../util/location');
 
 let DUMMY_PLACES = [
   {
@@ -69,14 +70,23 @@ const getPlacesByUserId = (req, res, next) => {
   res.json({ places });
 };
 
-const createPlace = (req, res, next) => {
+const createPlace = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw new HttpError('Invalid inputs passed, please check your data.', 422);
+    // When we work with the async code throw wont work properly so that why we will be using next here.
+    return next(new HttpError('Invalid inputs passed, please check your data.', 422));
   }
 
-  const { title, description, coordinates, address, creator } = req.body;
+  const { title, description, address, creator } = req.body;
   // In post, request always have a body. Now to get the data out of the body we use body-parser.
+  
+  let coordinates;
+  try {
+    coordinates = await getCoordsForAddress(address);
+  } catch (error) {
+    return next(error); // return so that no code ofter this runs.
+  }
+
   // const title = req.body.title;
   const createdPlace = {
     id: uuidv4(),
