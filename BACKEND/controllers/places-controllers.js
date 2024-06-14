@@ -134,7 +134,7 @@ const createPlace = async (req, res, next) => {
 };
 
 
-const updatePlace = (req, res, next) => {
+const updatePlace = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     throw new HttpError('Invalid inputs passed, please check your data.', 422);
@@ -142,24 +142,61 @@ const updatePlace = (req, res, next) => {
   const { title, description } = req.body;
   const placeId = req.params.pid; // pid we are getting from the url, thats why we are using the params as we are getting this data from the parameters.
 
-  const updatedPlace = { ...DUMMY_PLACES.find(p => p.id === placeId) }; // here we are making a copy of the object using {...}
+  // const updatedPlace = { ...DUMMY_PLACES.find(p => p.id === placeId) }; // here we are making a copy of the object using {...}
   // const updatedPlace = DUMMY_PLACES.find(p => p.id === placeId);
   // Over here what we could do is : updatedPlace.title = newTitle , updatedPlace.description = description. But its not the optimised way manipulating the array.
-  const placeIndex = DUMMY_PLACES.findIndex(p => p.id === placeId);
-  updatedPlace.title = title;
-  updatedPlace.description = description;
 
-  DUMMY_PLACES[placeIndex] = updatedPlace;
+  let place;
+  try {
+    place = await Place.findById(placeId);
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not update place.',
+      500
+    );
+    return next(error);
+  }
 
-  res.status(200).json({place: updatedPlace});
+  place.title = title;
+  place.description = description;
+
+  try {
+    await place.save();
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not update place.',
+      500
+    );
+    return next(error);
+  }
+
+  res.status(200).json({ place: place.toObject({ getters: true }) }); // converting mongoose object to JS object
 };
 
-const deletePlace = (req, res, next) => {
+const deletePlace = async(req, res, next) => {
   const placeId = req.params.pid;
-  if (!DUMMY_PLACES.find(p => p.id === placeId)) {
-    throw new HttpError('Could not find a place for that id.', 404);
+
+  let place;
+  try {
+    place = await Place.findById(placeId);
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not delete place bcz we didnt find it.',
+      500
+    );
+    return next(error);
   }
-  DUMMY_PLACES = DUMMY_PLACES.filter(p => p.id !== placeId);
+
+  try {
+    await place.deleteOne();
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not delete place.',
+      500
+    );
+    return next(error);
+  }
+
   res.status(200).json({ message: 'Deleted place.' });
 };
 
