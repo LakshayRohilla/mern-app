@@ -20,13 +20,21 @@ let DUMMY_PLACES = [
   },
 ];
 
-const getPlaceById = (req, res, next) => {
+const getPlaceById = async (req, res, next) => {
   // Here, '/pid' handles all the values even if they are not valid.
   // This is our middleware function in which we always have 3 params.
   const placeId = req.params.pid; // { pid: 'p1' }
-  const place = DUMMY_PLACES.find((p) => {
-    return p.id === placeId;
-  });
+  let place;
+  try {
+    place = await Place.findById(placeId);
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a place.',
+      500
+    );
+    return next(error);
+  }
+
 
   if (!place) {
     // const error = new Error('Could not find a place for the provided id.');
@@ -37,11 +45,15 @@ const getPlaceById = (req, res, next) => {
     // Another is the next() function and pass an error to it.
     // When we are in async code we have to use next and then pass error to it. next(error)
     if (!place) {
-      throw new HttpError("Could not find a place for the provided id.", 404);
+      const error = new HttpError(
+        'Could not find a place for the provided id.',
+        404
+      );
+      return next(error);
     }
   }
 
-  res.json({ place }); // => { place } => { place: place }
+  res.json({ place: place.toObject({ getters: true }) }); // => { place } => { place: place }
   // In the above line we are not doing res.send, though this time will send a json data.
   // As we the REST API`s we will exchange data in the JSON format
 };
