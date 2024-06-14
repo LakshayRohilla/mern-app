@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const HttpError = require("../models/http-error");
 const { validationResult } = require('express-validator');
 const getCoordsForAddress = require('../util/location');
+const Place = require('../models/place');
 
 let DUMMY_PLACES = [
   {
@@ -19,13 +20,21 @@ let DUMMY_PLACES = [
   },
 ];
 
-const getPlaceById = (req, res, next) => {
+const getPlaceById = async (req, res, next) => {
   // Here, '/pid' handles all the values even if they are not valid.
   // This is our middleware function in which we always have 3 params.
   const placeId = req.params.pid; // { pid: 'p1' }
-  const place = DUMMY_PLACES.find((p) => {
-    return p.id === placeId;
-  });
+  let place;
+  try {
+    place = await Place.findById(placeId);
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a place.',
+      500
+    );
+    return next(error);
+  }
+
 
   if (!place) {
     // const error = new Error('Could not find a place for the provided id.');
@@ -36,11 +45,15 @@ const getPlaceById = (req, res, next) => {
     // Another is the next() function and pass an error to it.
     // When we are in async code we have to use next and then pass error to it. next(error)
     if (!place) {
-      throw new HttpError("Could not find a place for the provided id.", 404);
+      const error = new HttpError(
+        'Could not find a place for the provided id.',
+        404
+      );
+      return next(error);
     }
   }
 
-  res.json({ place }); // => { place } => { place: place }
+  res.json({ place: place.toObject({ getters: true }) }); // => { place } => { place: place }
   // In the above line we are not doing res.send, though this time will send a json data.
   // As we the REST API`s we will exchange data in the JSON format
 };
@@ -77,8 +90,9 @@ const createPlace = async (req, res, next) => {
     return next(new HttpError('Invalid inputs passed, please check your data.', 422));
   }
 
-  const { title, description, address, creator } = req.body;
+  // const { title, description, address, location, creator } = req.body; // by this we can receive the location in the req body.
   // In post, request always have a body. Now to get the data out of the body we use body-parser.
+  const { title, description, address, creator } = req.body;
   
   let coordinates;
   try {
@@ -88,15 +102,25 @@ const createPlace = async (req, res, next) => {
   }
 
   // const title = req.body.title;
-  const createdPlace = {
-    id: uuidv4(),
+  const createdPlace = new Place({
     title, // we can also do title: title also. We use the short cut when we have same property name.
-    location: coordinates,
+    description,
     address,
+    location: coordinates,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/400px-Empire_State_Building_%28aerial_view%29.jpg',
     creator
-  };
+  });
 
-  DUMMY_PLACES.push(createdPlace); //unshift(createdPlace)
+  // DUMMY_PLACES.push(createdPlace); //unshift(createdPlace)
+  try {
+    await createdPlace.save(); // as save also return promise. Hence its a async task. So we can use await here.
+  } catch (err) {
+    const error = new HttpError(
+      'Creating place failed, please try again.',
+      500
+    );
+    return next(error); // to stop code execution if we have error here.
+  }
 
   res.status(201).json({place: createdPlace}); // 201 =  successfully creted on the server.
   // Here we are returning json having an object into it, in which we have place holding createdPlace.
