@@ -5,6 +5,8 @@ const HttpError = require("../models/http-error");
 const { validationResult } = require('express-validator');
 const getCoordsForAddress = require('../util/location');
 const Place = require('../models/place');
+const User = require('../models/user');
+const mongoose = require('mongoose');
 
 let DUMMY_PLACES = [
   {
@@ -119,8 +121,30 @@ const createPlace = async (req, res, next) => {
   });
 
   // DUMMY_PLACES.push(createdPlace); //unshift(createdPlace)
+  let user;
   try {
-    await createdPlace.save(); // as save also return promise. Hence its a async task. So we can use await here.
+    user = await User.findById(creator);
+  } catch (err) {
+    const error = new HttpError(
+      'Creating place failed, please try again.',
+      500
+    );
+    return next(error); // to stop code execution if we have error here.
+  }
+
+  if(!user) {
+    const error = new HttpError('Could not find user for the provided id', 404);
+    return next(error);
+  }
+
+  try {
+    // await createdPlace.save(); // as save also return promise. Hence its a async task. So we can use await here.
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await createdPlace.save({session: sess});
+    user.places.push(createdPlace);
+    await user.save({session: sess});
+    await sess.commitTransaction();
   } catch (err) {
     const error = new HttpError(
       'Creating place failed, please try again.',
