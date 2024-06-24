@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const HttpError = require("../models/http-error");
 const { validationResult } = require('express-validator');
 const getCoordsForAddress = require('../util/location');
+const Place = require('../models/place');
 
 let DUMMY_PLACES = [
   {
@@ -77,8 +78,9 @@ const createPlace = async (req, res, next) => {
     return next(new HttpError('Invalid inputs passed, please check your data.', 422));
   }
 
-  const { title, description, address, creator } = req.body;
+  // const { title, description, address, location, creator } = req.body; // by this we can receive the location in the req body.
   // In post, request always have a body. Now to get the data out of the body we use body-parser.
+  const { title, description, address, creator } = req.body;
   
   let coordinates;
   try {
@@ -88,15 +90,25 @@ const createPlace = async (req, res, next) => {
   }
 
   // const title = req.body.title;
-  const createdPlace = {
-    id: uuidv4(),
+  const createdPlace = new Place({
     title, // we can also do title: title also. We use the short cut when we have same property name.
-    location: coordinates,
+    description,
     address,
+    location: coordinates,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/400px-Empire_State_Building_%28aerial_view%29.jpg',
     creator
-  };
+  });
 
-  DUMMY_PLACES.push(createdPlace); //unshift(createdPlace)
+  // DUMMY_PLACES.push(createdPlace); //unshift(createdPlace)
+  try {
+    await createdPlace.save(); // as save also return promise. Hence its a async task. So we can use await here.
+  } catch (err) {
+    const error = new HttpError(
+      'Creating place failed, please try again.',
+      500
+    );
+    return next(error); // to stop code execution if we have error here.
+  }
 
   res.status(201).json({place: createdPlace}); // 201 =  successfully creted on the server.
   // Here we are returning json having an object into it, in which we have place holding createdPlace.
