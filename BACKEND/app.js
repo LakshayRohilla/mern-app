@@ -34,7 +34,7 @@ app.use((error, req, res, next) => { // its a error handling middleware function
   });
 
   mongoose
-  .connect('mongodb+srv://mern_app:root@cluster0.mlgdtgx.mongodb.net/places?retryWrites=true&w=majority&appName=Cluster0')
+  .connect('mongodb+srv://mern_app:root@cluster0.mlgdtgx.mongodb.net/mern?retryWrites=true&w=majority&appName=Cluster0')
   .then(() => {
     app.listen(5000);
   })
