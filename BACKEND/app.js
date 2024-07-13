@@ -6,9 +6,14 @@ const placesRoutes = require('./routes/places-routes');
 const HttpError = require('./models/http-error');
 const usersRoutes = require('./routes/users-routes');
 const mongoose = require('mongoose');
+const fs = require('fs'); // file system module, using this we can interact with the FS and can delete files as well
+const path = require('path');
 
 const app = express();
 app.use(bodyParser.json());
+
+app.use('/uploads/images', express.static(path.join('uploads', 'images'))); // express.static -> returns a static file.
+// files in this path will be returned. 
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -37,7 +42,12 @@ app.use((req, res, next) => { // for handling errors for the unsupported routes
 });
 
 app.use((error, req, res, next) => { // its a error handling middleware function. Its from express js.
-    if (res.headerSent) { // we check if a response has already been sent,
+  if (req.file) { // by this we can check if there is a file exist.
+    fs.unlink(req.file.path, err => { // unlink deletes the file.
+      console.log(err);
+    });
+  }  
+  if (res.headerSent) { // we check if a response has already been sent,
       return next(error);
     }
     res.status(error.code || 500)
