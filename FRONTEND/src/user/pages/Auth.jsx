@@ -67,8 +67,6 @@ const Auth = () => {
   const authSubmitHandler = async event => {
     event.preventDefault();
 
-    console.log(formState.inputs);
-
     if (isLoginMode) {
       try {
         const responseData = await sendRequest(
@@ -86,17 +84,18 @@ const Auth = () => {
       } catch (err) {}
     } else {
       try {
+        const formData = new FormData(); // its a browser API. It it avaliable just like thing. Nothing special to be added.
+        formData.append('email', formState.inputs.email.value); //(identifier, value)
+        formData.append('name', formState.inputs.name.value);
+        formData.append('password', formState.inputs.password.value);
+        formData.append('image', formState.inputs.image.value);
+        // on form data, you can add both normal text data, so things like the email, the name or the password.
+        // But you can also add binary data.
+
         const responseData = await sendRequest(
           'http://localhost:5000/api/users/signup',
           'POST',
-          JSON.stringify({
-            name: formState.inputs.name.value,
-            email: formState.inputs.email.value,
-            password: formState.inputs.password.value
-          }),
-          {
-            'Content-Type': 'application/json'
-          }
+          formData // the fetch api that we use under the hood in sendRequest, will set the headers automatically.
         );
 
         auth.login(responseData.user.id);
