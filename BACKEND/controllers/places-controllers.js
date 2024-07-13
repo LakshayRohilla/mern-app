@@ -1,6 +1,7 @@
 // All the middleware logic is being moved here.
 // const uuid = require('uuid/v4');
 const { v4: uuidv4 } = require('uuid');
+const fs = require('fs');
 const HttpError = require("../models/http-error");
 const { validationResult } = require('express-validator');
 const getCoordsForAddress = require('../util/location');
@@ -230,6 +231,7 @@ const deletePlace = async(req, res, next) => {
     return next(error);
   }
 
+  const imagePath = place.image;
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
@@ -244,6 +246,11 @@ const deletePlace = async(req, res, next) => {
     );
     return next(error);
   }
+
+  fs.unlink(imagePath, err => {
+    console.log(err);
+  });
+
 
   res.status(200).json({ message: 'Deleted place.' });
 };
