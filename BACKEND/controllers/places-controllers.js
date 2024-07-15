@@ -198,6 +198,14 @@ const updatePlace = async (req, res, next) => {
     return next(error);
   }
 
+  if (place.creator.toString() !== req.userData.userId) { // It's not a string that will equal this user ID here. Instead, it's an object of type mongoose. Object ID is special ID type mongoose knows.
+    const error = new HttpError(
+      'You are not allowed to edit this place.',
+      401
+    );
+    return next(error);
+  }
+
   place.title = title;
   place.description = description;
 
