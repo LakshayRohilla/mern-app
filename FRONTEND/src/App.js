@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect} from "react";
 import Users from "./user/pages/users";
 import NewPlace from "./places/pages/NewPlace";
 import MainNavigation from "./shared/components/Navigation/MainNavigation";
@@ -12,12 +12,18 @@ function App() {
   const [token, setToken] = useState(false);
   const [userId, setUserId] = useState(false);
 
-  const login = useCallback((uid, token) => {
+  const login = useCallback((uid, token, expirationDate) => {
     setToken(token);
     setUserId(uid);
+    const tokenExpirationDate =
+      expirationDate || new Date(new Date().getTime() + 1000 * 60 * 60); // current date + 1 hr
     localStorage.setItem(
       'userData',
-      JSON.stringify({ userId: uid, token: token })
+      JSON.stringify({
+        userId: uid,
+        token: token,
+        expiration: tokenExpirationDate.toISOString()
+      })
     );
   }, []);
 
@@ -29,8 +35,12 @@ function App() {
 
   useEffect(() => { // this will keep the use logged in, even if we refresh the page. This we call as auto login.
     const storedData = JSON.parse(localStorage.getItem('userData'));
-    if (storedData && storedData.token) {
-      login(storedData.userId, storedData.token);
+    if (
+      storedData &&
+      storedData.token &&
+      new Date(storedData.expiration) > new Date() // means exp date is in few.
+    ) {
+      login(storedData.userId, storedData.token, new Date(storedData.expiration));
     }
   }, [login]);
 
