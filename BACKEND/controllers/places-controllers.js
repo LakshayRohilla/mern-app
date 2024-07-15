@@ -118,7 +118,9 @@ const createPlace = async (req, res, next) => {
 
   // const { title, description, address, location, creator } = req.body; // by this we can receive the location in the req body.
   // In post, request always have a body. Now to get the data out of the body we use body-parser.
-  const { title, description, address, creator } = req.body;
+  // const { title, description, address, creator } = req.body;
+  const { title, description, address } = req.body;
+  // We are getting the creator from the request body that user is entering.
   
   let coordinates;
   try {
@@ -134,13 +136,15 @@ const createPlace = async (req, res, next) => {
     address,
     location: coordinates,
     image: req.file.path,
-    creator
+    //creator
+    creator: req.userData.userId // we can rely on the creator id that we are getting from the token
   });
 
   // DUMMY_PLACES.push(createdPlace); //unshift(createdPlace)
   let user;
   try {
-    user = await User.findById(creator);
+    // user = await User.findById(creator);
+    user = await User.findById(req.userData.userId);
   } catch (err) {
     const error = new HttpError(
       'Creating place failed, please try again.',
