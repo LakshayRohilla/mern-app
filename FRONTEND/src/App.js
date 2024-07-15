@@ -24,7 +24,15 @@ function App() {
   const logout = useCallback(() => {
     setToken(null);
     setUserId(null);
+    localStorage.removeItem('userData'); // to make sure if we log out, then we stay log out.
   }, []);
+
+  useEffect(() => { // this will keep the use logged in, even if we refresh the page. This we call as auto login.
+    const storedData = JSON.parse(localStorage.getItem('userData'));
+    if (storedData && storedData.token) {
+      login(storedData.userId, storedData.token);
+    }
+  }, [login]);
 
   let routes;
 
