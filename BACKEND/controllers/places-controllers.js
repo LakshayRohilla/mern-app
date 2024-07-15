@@ -228,6 +228,8 @@ const deletePlace = async(req, res, next) => {
   let place;
   try {
     place = await Place.findById(placeId).populate('creator');
+    // Creator is now not just an ID here as it is here in update place where I just find the place and I don't
+    // populate creator instead with populate creator, the creator field holds the full user object.
   } catch (err) {
     const error = new HttpError(
       'Something went wrong, could not delete place..',
@@ -238,6 +240,14 @@ const deletePlace = async(req, res, next) => {
 
   if (!place) {
     const error = new HttpError('Could not find place for this id.', 404);
+    return next(error);
+  }
+
+  if (place.creator.id !== req.userData.userId) { // Now important here, you don't need to call to string because this ID getter here already gives us the ID as a string
+    const error = new HttpError(
+      'You are not allowed to delete this place.',
+      401
+    );
     return next(error);
   }
 
