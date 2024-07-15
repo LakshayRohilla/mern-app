@@ -7,6 +7,8 @@ const jwt = require('jsonwebtoken');
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
 
+// next(); // allow the request to continue its journey so that it is able to reach any other routes.
+
 const getUsers = async (req, res, next) => {
   let users;
   try {
