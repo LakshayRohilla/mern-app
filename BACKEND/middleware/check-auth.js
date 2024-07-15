@@ -3,6 +3,10 @@ const jwt = require('jsonwebtoken');
 const HttpError = require('../models/http-error');
 
 module.exports = (req, res, next) => {
+  if (req.method === 'OPTIONS') { // we need to do this bcz we face auth error. Check obsidian for more info
+    // So this is a required adjustment to ensure that our options request is not blocked.
+    return next(); 
+  } 
   try {
     const token = req.headers.authorization.split(' ')[1]; // Authorization: 'Bearer TOKEN' // We will get an array as an output from this. Containing Bearer string & TOKEN.
     // req.headers is automatically provided by express JS.
