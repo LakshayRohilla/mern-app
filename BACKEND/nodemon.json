@@ -3,7 +3,7 @@
         "DB_USER":"mern_app",
         "DB_PASSWORD": "root",
         "DB_NAME": "mern",
-        "GOOGLE_API_KEY": "AIzaSyDgLmMpKCzveJf1_yuA0fUzzhy0WRChvZA",
+        "GOOGLE_API_KEY": "AIzaSyD-viCZEIjc8wF2wCOgSo7K1yv-lAJNkik",
         "JWT_KEY": "supersecret_dont_share"
     }
 }
