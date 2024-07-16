@@ -61,14 +61,21 @@ const getPlaceById = async (req, res, next) => {
 // function getPlaceById() { ... }
 // const getPlaceById = function() { ... }
 
-const getPlacesByUserId = (req, res, next) => {
+const getPlacesByUserId = async(req, res, next) => {
   // Now if we have /api/place/user then also the previous router will handle it. As it takes even invalid ids.
   // And this is an issue.
   const userId = req.params.uid;
 
-  const places = DUMMY_PLACES.filter((p) => {
-    return p.creator === userId;
-  });
+  let places;
+  try {
+    places = await Place.find({ creator: userId });
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a place.',
+      500
+    );
+    return next(error);
+  }
 
   if (!places || places.length==0) {
     // const error = new Error('Could not find a place for the provided user id.');
@@ -77,10 +84,10 @@ const getPlacesByUserId = (req, res, next) => {
     // We return so that it wont go to the further lines.
     //  next does not cancel it so we have to return to then thereafter make sure this code doesn't run.
     return next(
-      new HttpError("Could not find a places for the provided user id.", 404)
+      new HttpError('Could not find places for the provided user id.', 404)
     );
   }
-  res.json({ places });
+  res.json({ places: places.map(place => place.toObject({ getters: true })) }); // bcz find returns a array.
 };
 
 const createPlace = async (req, res, next) => {
