@@ -6,6 +6,7 @@ const placesControllers = require("../controllers/places-controllers");
 
 const router = express.Router();
 const { check } = require('express-validator'); 
+const fileUpload = require('../middleware/file-upload');
 
 router.get("/:pid", placesControllers.getPlaceById);
 
@@ -16,6 +17,7 @@ router.get("/user/:uid", placesControllers.getPlacesByUserId);
 
 router.post(
   "/",
+  fileUpload.single('image'),
   [
     check("title").not().isEmpty(), // this reads like plain English in the end, right, we check that the title is not empty and that overall gives us a new middleware which is added for post
     // requests that target /api/places/

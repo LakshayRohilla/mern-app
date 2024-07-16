@@ -13,6 +13,7 @@ import { AuthContext } from "../../shared/context/auth-context";
 import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import { useNavigate } from 'react-router-dom';
+import ImageUpload from '../../shared/components/FormElements/ImageUpload';
 
 // const formReducer = (state, action) => {
 //   switch (action.type) {
@@ -77,6 +78,10 @@ const NewPlace = () => {
         value: "",
         isValid: false,
       },
+      image: {
+        value: null,
+        isValid: false
+      }
     },
     false
   );
@@ -97,17 +102,26 @@ const NewPlace = () => {
     event.preventDefault();
     console.log(formState.inputs); // send this to the backend!
     try {
-      await sendRequest(
-        "http://localhost:5000/api/places",
-        "POST",
-        JSON.stringify({
-          title: formState.inputs.title.value,
-          description: formState.inputs.description.value,
-          address: formState.inputs.address.value,
-          creator: auth.userId,
-        }),
-        { "Content-Type": "application/json" }
-      );
+      // as we learnt in the image upload section that if we are dealing with image upload, then we cant post the data as below
+      // we are supposed to use the formdata, which is an API from the backend itself.
+      // await sendRequest(
+      //   "http://localhost:5000/api/places",
+      //   "POST",
+      //   JSON.stringify({
+      //     title: formState.inputs.title.value,
+      //     description: formState.inputs.description.value,
+      //     address: formState.inputs.address.value,
+      //     creator: auth.userId,
+      //   }),
+      //   { "Content-Type": "application/json" }
+      // );
+      const formData = new FormData();
+      formData.append('title', formState.inputs.title.value);
+      formData.append('description', formState.inputs.description.value);
+      formData.append('address', formState.inputs.address.value);
+      formData.append('creator', auth.userId);
+      formData.append('image', formState.inputs.image.value);
+      await sendRequest('http://localhost:5000/api/places', 'POST', formData);
       navigate.push("/"); // once the place will be added it will be redirected to this route
     } catch (err) {}
   };
@@ -141,6 +155,11 @@ const NewPlace = () => {
           validators={[VALIDATOR_REQUIRE()]}
           errorText="Please enter a valid address."
           onInput={inputHandler}
+        />
+        <ImageUpload
+          id="image"
+          onInput={inputHandler}
+          errorText="Please provide an image."
         />
         <Button type="submit" disabled={!formState.isValid}>
           ADD PLACE
