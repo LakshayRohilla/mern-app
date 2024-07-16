@@ -1,7 +1,7 @@
 // This is a config file for the multer.
 
 const multer = require('multer');
-const uuid = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 
 const MIME_TYPE_MAP = { // kind of file we're dealing with.
   'image/png': 'png',
@@ -18,7 +18,7 @@ const fileUpload = multer({ // Here we are configuring the multer to store the f
     },
     filename: (req, file, cb) => { // also a file name key to control the file name that's being used.
       const ext = MIME_TYPE_MAP[file.mimetype]; // extention of the incoming file. file itself have the minetype in it.
-      cb(null, uuid() + '.' + ext);
+      cb(null, uuidv4() + '.' + ext);
       // I got no error, so I'll pass null as a first argument.
       // this generates a random file name with the right extension.
     }
