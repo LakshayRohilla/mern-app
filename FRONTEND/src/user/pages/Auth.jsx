@@ -5,6 +5,7 @@ import Input from '../../shared/components/FormElements/Input';
 import Button from '../../shared/components/FormElements/Button';
 import ErrorModal from '../../shared/components/UIElements/ErrorModal';
 import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
+import ImageUpload from '../../shared/components/FormElements/ImageUpload';
 import {
   VALIDATOR_EMAIL,
   VALIDATOR_MINLENGTH,
@@ -14,7 +15,6 @@ import { useForm } from '../../shared/hooks/form-hook';
 import { useHttpClient } from '../../shared/hooks/http-hook';
 import { AuthContext } from '../../shared/context/auth-context';
 import './Auth.css';
-import ImageUpload from '../../shared/components/FormElements/ImageUpload';
 
 const Auth = () => {
   const auth = useContext(AuthContext);
@@ -40,7 +40,8 @@ const Auth = () => {
       setFormData(
         {
           ...formState.inputs,
-          name: undefined
+          name: undefined,
+          image: undefined
         },
         formState.inputs.email.isValid && formState.inputs.password.isValid
       );
@@ -50,6 +51,10 @@ const Auth = () => {
           ...formState.inputs,
           name: {
             value: '',
+            isValid: false
+          },
+          image: {
+            value: null,
             isValid: false
           }
         },
@@ -62,6 +67,8 @@ const Auth = () => {
   const authSubmitHandler = async event => {
     event.preventDefault();
 
+    console.log(formState.inputs);
+
     if (isLoginMode) {
       try {
         const responseData = await sendRequest(
@@ -72,7 +79,7 @@ const Auth = () => {
             password: formState.inputs.password.value
           }),
           {
-            'Content-Type': 'application/json' 
+            'Content-Type': 'application/json' // to let BE know that what kind of data it receives. 
           }
         );
         auth.login(responseData.user.id);
@@ -88,7 +95,7 @@ const Auth = () => {
             password: formState.inputs.password.value
           }),
           {
-            'Content-Type': 'application/json' // to let BE know that what kind of data it receives. 
+            'Content-Type': 'application/json'
           }
         );
 
@@ -116,7 +123,9 @@ const Auth = () => {
               onInput={inputHandler}
             />
           )}
-          {!isLoginMode && <ImageUpload center id="image" />}
+          {!isLoginMode && (
+            <ImageUpload center id="image" onInput={inputHandler} />
+          )}
           <Input
             element="input"
             id="email"
@@ -132,7 +141,7 @@ const Auth = () => {
             type="password"
             label="Password"
             validators={[VALIDATOR_MINLENGTH(6)]}
-            errorText="Please enter a valid password, at least 5 characters."
+            errorText="Please enter a valid password, at least 6 characters."
             onInput={inputHandler}
           />
           <Button type="submit" disabled={!formState.isValid}>
