@@ -137,7 +137,7 @@ const createPlace = async (req, res, next) => {
 const updatePlace = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw new HttpError('Invalid inputs passed, please check your data.', 422);
+    return next(HttpError('Invalid inputs passed, please check your data.', 422));
   }
   const { title, description } = req.body;
   const placeId = req.params.pid; // pid we are getting from the url, thats why we are using the params as we are getting this data from the parameters.
