@@ -82,7 +82,7 @@ const signup = async (req, res, next) => {
     token = jwt.sign( // sign method here returns a string in the end and this string will be the token.
       { userId: createdUser.id, email: createdUser.email }, // payload of the token. So the data you want to encode into the token in this can be a string, an object or a buffer.
       // user id, to understand which user it belongs to. D is a getter provided by Mongoose on every created user document object(collection) we're working with.
-      'supersecret_dont_share',  // private key ,  a string which only the server knows.
+      process.env.JWT_KEY,  // private key ,  a string which only the server knows.
       { expiresIn: '1h' } // the last argument is optional. And here you can configure the token with a JavaScript object where you can set up certain options.
       // For example, you can set a token expiration with expires in.
     );
@@ -147,7 +147,7 @@ const login = async (req, res, next) => {
   try {
     token = jwt.sign( 
       { userId: existingUser.id, email: existingUser.email }, 
-      'supersecret_dont_share', // keep in mind for the login and signup keys should be the same.
+      process.env.JWT_KEY, // keep in mind for the login and signup keys should be the same.
       { expiresIn: '1h' } 
     );
   } catch (err) {

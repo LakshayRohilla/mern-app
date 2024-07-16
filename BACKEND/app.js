@@ -55,7 +55,8 @@ app.use((error, req, res, next) => { // its a error handling middleware function
   });
 
   mongoose
-  .connect('mongodb+srv://mern_app:root@cluster0.mlgdtgx.mongodb.net/mern?retryWrites=true&w=majority&appName=Cluster0')
+  .connect('mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD@cluster0.mlgdtgx.mongodb.net/${process.env.DB_NAME?retryWrites=true&w=majority&appName=Cluster0')
+  // Process is provided by node JS, and its always available globally. When we try to access "process.env" then nodemon inject the values we ask for.
   .then(() => {
     app.listen(5000);
   })
