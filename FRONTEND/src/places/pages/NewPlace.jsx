@@ -121,7 +121,7 @@ const NewPlace = () => {
       formData.append('address', formState.inputs.address.value);
       // formData.append('creator', auth.userId); no need of this anymore as we are getting this from the token
       formData.append('image', formState.inputs.image.value);
-      await sendRequest('http://localhost:5000/api/places', 'POST', formData, {
+      await sendRequest(process.env.REACT_APP_BACKEND_URL + '/places', 'POST', formData, {
         Authorization: 'Bearer ' + auth.token
       }); // once we have the auth functionality we start to provide the headers.
       navigate.push("/"); // once the place will be added it will be redirected to this route
