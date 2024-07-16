@@ -9,6 +9,8 @@ const Place = require('../models/place');
 const User = require('../models/user');
 const mongoose = require('mongoose');
 
+// next(); // allow the request to continue its journey so that it is able to reach any other routes.
+
 const getPlaceById = async (req, res, next) => {
   // Here, '/pid' handles all the values even if they are not valid.
   // This is our middleware function in which we always have 3 params.
