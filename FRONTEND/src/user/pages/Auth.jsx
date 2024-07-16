@@ -80,7 +80,7 @@ const Auth = () => {
             'Content-Type': 'application/json' // to let BE know that what kind of data it receives. 
           }
         );
-        auth.login(responseData.user.id);
+        auth.login(responseData.userId, responseData.token); // with the user id for the login, we will also use the token that we are getting from the backend.
       } catch (err) {}
     } else {
       try {
@@ -98,7 +98,7 @@ const Auth = () => {
           formData // the fetch api that we use under the hood in sendRequest, will set the headers automatically.
         );
 
-        auth.login(responseData.user.id);
+        auth.login(responseData.userId, responseData.token); // with the user id for the login, we will also use the token that we are getting from the backend.
       } catch (err) {}
     }
   };
