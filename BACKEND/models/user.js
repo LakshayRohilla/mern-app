@@ -9,7 +9,9 @@ const userSchema = new Schema({
     email: { type: String, required: true, unique: true }, 
     password: { type: String, required: true, minlength: 6 },
     image: { type: String, required: true },
-    places: { type: String, required: true },
+    places: [{ type: mongoose.Types.ObjectId, required: true, ref: 'Place'}]
+    // we said that one user can have multiple places. Therefore we have to add an array here.
+    // This is how we tell Mongoose that in documents based on the schema, we have multiple places entries instead of just one value.
 });
 
 userSchema.plugin(uniqueValidator);
