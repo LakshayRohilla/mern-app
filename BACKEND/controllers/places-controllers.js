@@ -64,32 +64,60 @@ const getPlaceById = async (req, res, next) => {
 // const getPlaceById = function() { ... }
 
 const getPlacesByUserId = async(req, res, next) => {
-  // Now if we have /api/place/user then also the previous router will handle it. As it takes even invalid ids.
-  // And this is an issue.
+  // // Now if we have /api/place/user then also the previous router will handle it. As it takes even invalid ids.
+  // // And this is an issue.
+  // const userId = req.params.uid;
+
+  // let places;
+  // try {
+  //   places = await Place.find({ creator: userId });
+  // } catch (err) {
+  //   const error = new HttpError(
+  //     'Something went wrong, could not find a place.',
+  //     500
+  //   );
+  //   return next(error);
+  // }
+
+  // if (!places || places.length==0) {
+  //   // const error = new Error('Could not find a place for the provided user id.');
+  //   // error.code = 404;
+  //   // return next(error);
+  //   // We return so that it wont go to the further lines.
+  //   //  next does not cancel it so we have to return to then thereafter make sure this code doesn't run.
+  //   return next(
+  //     new HttpError('Could not find places for the provided user id.', 404)
+  //   );
+  // }
+  // res.json({ places: places.map(place => place.toObject({ getters: true })) }); // bcz find returns a array.
+
+  // The below is as alternate solution with the populate() method
   const userId = req.params.uid;
 
-  let places;
+  // let places;
+  let userWithPlaces;
   try {
-    places = await Place.find({ creator: userId });
+    userWithPlaces = await User.findById(userId).populate('places');
   } catch (err) {
     const error = new HttpError(
-      'Something went wrong, could not find a place.',
+      'Fetching places failed, please try again later',
       500
     );
     return next(error);
   }
 
-  if (!places || places.length==0) {
-    // const error = new Error('Could not find a place for the provided user id.');
-    // error.code = 404;
-    // return next(error);
-    // We return so that it wont go to the further lines.
-    //  next does not cancel it so we have to return to then thereafter make sure this code doesn't run.
+  // if (!places || places.length === 0) {
+  if (!userWithPlaces || userWithPlaces.places.length === 0) {
     return next(
       new HttpError('Could not find places for the provided user id.', 404)
     );
   }
-  res.json({ places: places.map(place => place.toObject({ getters: true })) }); // bcz find returns a array.
+
+  res.json({
+    places: userWithPlaces.places.map(place =>
+      place.toObject({ getters: true })
+    )
+  });
 };
 
 const createPlace = async (req, res, next) => {
